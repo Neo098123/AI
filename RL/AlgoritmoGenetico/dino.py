@@ -1,7 +1,6 @@
 import numpy as np
 import random
 import sys
-sys.path.append('chrome_trex.zip')
 
 from chrome_trex import DinoGame
 
@@ -33,6 +32,18 @@ def ordenar_lista(lista, ordenacao, decrescente=True):
     """
     return [x for _, x in sorted(zip(ordenacao, lista), key=lambda p: p[0], reverse=decrescente)]
 
+def valor_das_acoes(individuo, estado):
+    """
+    Argumentos da Função:
+        individuo: matriz 3x10 com os pesos do indivíduo.
+        estado: lista com 10 números que representam o estado do jogo.
+    Saída:
+        Uma lista com os valores das ações no estado `estado`. Calcula os valores
+        das jogadas como combinações lineares dos valores do estado, ou seja,
+        multiplica a matriz de pesos pelo estado.
+    """
+
+    return individuo @ estado
 
 def populacao_aleatoria(n):
     """
@@ -150,7 +161,7 @@ def proxima_geracao(populacao, fitness):
     return proxima_ger
 
 
-def mostrar_melhor_individuo(jogo, populacao, fitness):
+def mostrar_melhor_individuo(populacao, fitness):
     """
     Argumentos da Função:
         jogo: objeto que representa o jogo.
@@ -159,17 +170,16 @@ def mostrar_melhor_individuo(jogo, populacao, fitness):
     Saída:
         Não há saída. Simplesmente mostra o melhor indivíduo de uma população.
     """
-
-    fps_antigo = jogo.fps
-    jogo.fps = 100
     ind = populacao[max(range(len(populacao)), key=lambda i: fitness[i])]
     print('Melhor individuo:', ind)
+    
     while True:
         if input('Pressione enter para rodar o melhor agente. Digite q para sair. ') == 'q':
-            jogo.fps = fps_antigo
             return
-        fit = calcular_fitness(jogo, ind)
-        print('Fitness: {:4.1f}'.format(jogo.get_score()))
+        jogoVisivel = DinoGame(fps=100)
+        fit = calcular_fitness(jogoVisivel, ind)
+        print('Fitness: {:4.1f}'.format(jogoVisivel.get_score()))
+        jogoVisivel.close()
         
 
 ###############################
@@ -204,4 +214,6 @@ fitness = []
 for ind in populacao:
     fitness.append(calcular_fitness(jogo, ind))
 
-mostrar_melhor_individuo(jogo, populacao, fitness)
+jogo.close()
+
+mostrar_melhor_individuo(populacao, fitness)
